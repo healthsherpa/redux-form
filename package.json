@@ -1,5 +1,5 @@
 {
-  "name": "@healthsherpa/redux-form",
+  "name": "redux-form",
   "version": "8.4.0",
   "description": "A higher order component decorator for forms using Redux and React",
   "main": "./lib/index.js",
