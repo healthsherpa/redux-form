@@ -2398,8 +2398,7 @@
               // Non `Object` object instances with different constructors are not equal.
               if (
                 objCtor != othCtor &&
-                'constructor' in object &&
-                'constructor' in other &&
+                'constructor' in object && 'constructor' in other &&
                 !(
                   typeof objCtor == 'function' &&
                   objCtor instanceof objCtor &&
@@ -6428,6 +6427,7 @@ object-assign
 
                 return (0, _react.createElement)(component, props)
               }
+
               ;(0, _createClass2['default'])(ConnectedFieldArray, [
                 {
                   key: 'dirty',
@@ -8254,6 +8254,7 @@ object-assign
                   })
                 )
               }
+
               ;(0, _createClass2['default'])(Field, [
                 {
                   key: 'name',
@@ -8478,6 +8479,7 @@ object-assign
                   })
                 )
               }
+
               ;(0, _createClass2['default'])(FieldArray, [
                 {
                   key: 'name',
@@ -9052,6 +9054,7 @@ object-assign
                   })
                 )
               }
+
               ;(0, _createClass2['default'])(Fields, [
                 {
                   key: 'names',
@@ -11451,6 +11454,7 @@ object-assign
                       })
                     )
                   }
+
                   ;(0, _createClass2['default'])(ReduxForm, [
                     {
                       key: 'valid',
@@ -14565,15 +14569,14 @@ object-assign
         /*! no static exports found */
         /***/ function(module, exports, __webpack_require__) {
           'use strict'
-          /* WEBPACK VAR INJECTION */
-          ;(function(module) {
+          /* WEBPACK VAR INJECTION */ ;(function(module) {
             exports.__esModule = true
             exports['default'] = void 0
 
             var isHotReloading = function isHotReloading() {
-              var castModule = module
+              var castModule = true && module
               return !!(
-                typeof castModule !== 'undefined' &&
+                castModule &&
                 castModule.hot &&
                 typeof castModule.hot.status === 'function' &&
                 castModule.hot.status() === 'apply'
