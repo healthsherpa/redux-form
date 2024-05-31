@@ -2398,7 +2398,8 @@
               // Non `Object` object instances with different constructors are not equal.
               if (
                 objCtor != othCtor &&
-                'constructor' in object && 'constructor' in other &&
+                'constructor' in object &&
+                'constructor' in other &&
                 !(
                   typeof objCtor == 'function' &&
                   objCtor instanceof objCtor &&
@@ -6427,7 +6428,6 @@ object-assign
 
                 return (0, _react.createElement)(component, props)
               }
-
               ;(0, _createClass2['default'])(ConnectedFieldArray, [
                 {
                   key: 'dirty',
@@ -8204,16 +8204,16 @@ object-assign
                 return (0, _shallowCompare['default'])(this, nextProps, nextState)
               }
 
-              _proto.componentDidUpdate = function componentDidUpdate(prevProps) {
-                var _this3 = this
-
-                var oldName = (0, _prefixName['default'])(prevProps, prevProps.name)
-                var newName = (0, _prefixName['default'])(this.props, this.props.name)
+              _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(
+                nextProps
+              ) {
+                var oldName = (0, _prefixName['default'])(this.props, this.props.name)
+                var newName = (0, _prefixName['default'])(nextProps, nextProps.name)
 
                 if (
                   oldName !== newName || // use deepEqual here because they could be a function or an array of functions
-                  !_plain['default'].deepEqual(prevProps.validate, this.props.validate) ||
-                  !_plain['default'].deepEqual(prevProps.warn, this.props.warn)
+                  !_plain['default'].deepEqual(this.props.validate, nextProps.validate) ||
+                  !_plain['default'].deepEqual(this.props.warn, nextProps.warn)
                 ) {
                   // unregister old name
                   this.props._reduxForm.unregister(oldName) // register new name
@@ -8222,10 +8222,10 @@ object-assign
                     newName,
                     'Field',
                     function() {
-                      return _this3.props.validate
+                      return nextProps.validate
                     },
                     function() {
-                      return _this3.props.warn
+                      return nextProps.warn
                     }
                   )
                 }
@@ -8254,7 +8254,6 @@ object-assign
                   })
                 )
               }
-
               ;(0, _createClass2['default'])(Field, [
                 {
                   key: 'name',
@@ -8443,9 +8442,11 @@ object-assign
                 )
               }
 
-              _proto.componentDidUpdate = function componentDidUpdate(prevProps) {
-                var oldName = (0, _prefixName['default'])(prevProps, prevProps.name)
-                var newName = (0, _prefixName['default'])(this.props, this.props.name)
+              _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(
+                nextProps
+              ) {
+                var oldName = (0, _prefixName['default'])(this.props, this.props.name)
+                var newName = (0, _prefixName['default'])(nextProps, nextProps.name)
 
                 if (oldName !== newName) {
                   // unregister old name
@@ -8477,7 +8478,6 @@ object-assign
                   })
                 )
               }
-
               ;(0, _createClass2['default'])(FieldArray, [
                 {
                   key: 'name',
@@ -9052,7 +9052,6 @@ object-assign
                   })
                 )
               }
-
               ;(0, _createClass2['default'])(Fields, [
                 {
                   key: 'names',
@@ -10446,7 +10445,6 @@ object-assign
                     _this.lastFieldWarnerKeys = []
                     _this.innerOnSubmit = undefined
                     _this.submitPromise = undefined
-                    _this.initializedOnLoad = false
 
                     _this.initIfNeeded = function(nextProps) {
                       var enableReinitialize = _this.props.enableReinitialize
@@ -10464,8 +10462,6 @@ object-assign
                             lastInitialValues: _this.props.initialValues,
                             updateUnregisteredFields: nextProps.updateUnregisteredFields
                           })
-
-                          return true
                         }
                       } else if (
                         _this.props.initialValues &&
@@ -10479,11 +10475,7 @@ object-assign
                             updateUnregisteredFields: _this.props.updateUnregisteredFields
                           }
                         )
-
-                        return true
                       }
-
-                      return false
                     }
 
                     _this.updateSyncErrorsIfNeeded = function(
@@ -10952,25 +10944,28 @@ object-assign
                       return _this.props.reset()
                     }
 
-                    if (!(0, _isHotReloading['default'])()) {
-                      _this.initializedOnLoad = _this.initIfNeeded()
-                    }
-
-                    ;(0, _invariant['default'])(
-                      _this.props.shouldValidate,
-                      'shouldValidate() is deprecated and will be removed in v9.0.0. Use shouldWarn() or shouldError() instead.'
-                    )
                     return _this
                   }
 
                   var _proto = Form.prototype
 
+                  _proto.UNSAFE_componentWillMount = function UNSAFE_componentWillMount() {
+                    if (!(0, _isHotReloading['default'])()) {
+                      this.initIfNeeded()
+                      this.validateIfNeeded()
+                      this.warnIfNeeded()
+                    }
+
+                    ;(0, _invariant['default'])(
+                      this.props.shouldValidate,
+                      'shouldValidate() is deprecated and will be removed in v9.0.0. Use shouldWarn() or shouldError() instead.'
+                    )
+                  }
+
                   _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(
                     nextProps
                   ) {
-                    var isValueReset = this.initIfNeeded(nextProps) // initialize will dispatch a redux action and call componentWillReceiveProps again; hence we can skip reinitialize if needed.
-
-                    if (isValueReset) return
+                    this.initIfNeeded(nextProps)
                     this.validateIfNeeded(nextProps)
                     this.warnIfNeeded(nextProps)
                     this.clearSubmitPromiseIfNeeded(nextProps)
@@ -11014,9 +11009,7 @@ object-assign
 
                   _proto.componentDidMount = function componentDidMount() {
                     if (!(0, _isHotReloading['default'])()) {
-                      // initialize in constructor function will dispatch a redux action and call componentWillReceiveProps which checks for validate;
-                      // hence we can skip validate and warning if initialize has been triggered in constructor
-                      if (this.initializedOnLoad) return
+                      this.initIfNeeded(this.props)
                       this.validateIfNeeded()
                       this.warnIfNeeded()
                     }
@@ -11458,7 +11451,6 @@ object-assign
                       })
                     )
                   }
-
                   ;(0, _createClass2['default'])(ReduxForm, [
                     {
                       key: 'valid',
@@ -14573,14 +14565,15 @@ object-assign
         /*! no static exports found */
         /***/ function(module, exports, __webpack_require__) {
           'use strict'
-          /* WEBPACK VAR INJECTION */ ;(function(module) {
+          /* WEBPACK VAR INJECTION */
+          ;(function(module) {
             exports.__esModule = true
             exports['default'] = void 0
 
             var isHotReloading = function isHotReloading() {
-              var castModule = true && module
+              var castModule = module
               return !!(
-                castModule &&
+                typeof castModule !== 'undefined' &&
                 castModule.hot &&
                 typeof castModule.hot.status === 'function' &&
                 castModule.hot.status() === 'apply'

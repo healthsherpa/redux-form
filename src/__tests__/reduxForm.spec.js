@@ -5513,7 +5513,7 @@ const describeReduxForm = (name, structure, combineReducers, setup) => {
       }
 
       class Form extends Component {
-        componentDidMount() {
+        UNSAFE_componentWillMount() {
           this.props.initialize({ foo: 'Initialized' })
         }
 

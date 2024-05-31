@@ -151,7 +151,6 @@ export default function createReduxForm(structure) {
           _this.lastFieldWarnerKeys = []
           _this.innerOnSubmit = undefined
           _this.submitPromise = undefined
-          _this.initializedOnLoad = false
 
           _this.initIfNeeded = function(nextProps) {
             var enableReinitialize = _this.props.enableReinitialize
@@ -168,8 +167,6 @@ export default function createReduxForm(structure) {
                   lastInitialValues: _this.props.initialValues,
                   updateUnregisteredFields: nextProps.updateUnregisteredFields
                 })
-
-                return true
               }
             } else if (
               _this.props.initialValues &&
@@ -183,11 +180,7 @@ export default function createReduxForm(structure) {
                   updateUnregisteredFields: _this.props.updateUnregisteredFields
                 }
               )
-
-              return true
             }
-
-            return false
           }
 
           _this.updateSyncErrorsIfNeeded = function(nextSyncErrors, nextError, lastSyncErrors) {
@@ -628,25 +621,28 @@ export default function createReduxForm(structure) {
             return _this.props.reset()
           }
 
-          if (!isHotReloading()) {
-            _this.initializedOnLoad = _this.initIfNeeded()
-          }
-
-          invariant(
-            _this.props.shouldValidate,
-            'shouldValidate() is deprecated and will be removed in v9.0.0. Use shouldWarn() or shouldError() instead.'
-          )
           return _this
         }
 
         var _proto = Form.prototype
 
+        _proto.UNSAFE_componentWillMount = function UNSAFE_componentWillMount() {
+          if (!isHotReloading()) {
+            this.initIfNeeded()
+            this.validateIfNeeded()
+            this.warnIfNeeded()
+          }
+
+          invariant(
+            this.props.shouldValidate,
+            'shouldValidate() is deprecated and will be removed in v9.0.0. Use shouldWarn() or shouldError() instead.'
+          )
+        }
+
         _proto.UNSAFE_componentWillReceiveProps = function UNSAFE_componentWillReceiveProps(
           nextProps
         ) {
-          var isValueReset = this.initIfNeeded(nextProps) // initialize will dispatch a redux action and call componentWillReceiveProps again; hence we can skip reinitialize if needed.
-
-          if (isValueReset) return
+          this.initIfNeeded(nextProps)
           this.validateIfNeeded(nextProps)
           this.warnIfNeeded(nextProps)
           this.clearSubmitPromiseIfNeeded(nextProps)
@@ -690,9 +686,7 @@ export default function createReduxForm(structure) {
 
         _proto.componentDidMount = function componentDidMount() {
           if (!isHotReloading()) {
-            // initialize in constructor function will dispatch a redux action and call componentWillReceiveProps which checks for validate;
-            // hence we can skip validate and warning if initialize has been triggered in constructor
-            if (this.initializedOnLoad) return
+            this.initIfNeeded(this.props)
             this.validateIfNeeded()
             this.warnIfNeeded()
           }

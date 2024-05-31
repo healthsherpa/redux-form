@@ -305,20 +305,8 @@ export default function createReduxForm(structure: Structure<any, any>) {
         lastFieldWarnerKeys = []
         innerOnSubmit = undefined
         submitPromise = undefined
-        initializedOnLoad = false
 
-        constructor(...args) {
-          super(...args)
-          if (!isHotReloading()) {
-            this.initializedOnLoad = this.initIfNeeded()
-          }
-          invariant(
-            this.props.shouldValidate,
-            'shouldValidate() is deprecated and will be removed in v9.0.0. Use shouldWarn() or shouldError() instead.'
-          )
-        }
-
-        initIfNeeded = (nextProps: ?PropsWithContext): boolean => {
+        initIfNeeded = (nextProps: ?PropsWithContext): void => {
           const { enableReinitialize } = this.props
           if (nextProps) {
             if (
@@ -331,16 +319,13 @@ export default function createReduxForm(structure: Structure<any, any>) {
                 lastInitialValues: this.props.initialValues,
                 updateUnregisteredFields: nextProps.updateUnregisteredFields
               })
-              return true
             }
           } else if (this.props.initialValues && (!this.props.initialized || enableReinitialize)) {
             this.props.initialize(this.props.initialValues, this.props.keepDirtyOnReinitialize, {
               keepValues: this.props.keepValues,
               updateUnregisteredFields: this.props.updateUnregisteredFields
             })
-            return true
           }
-          return false
         }
 
         updateSyncErrorsIfNeeded = (
@@ -472,10 +457,20 @@ export default function createReduxForm(structure: Structure<any, any>) {
           }
         }
 
+        UNSAFE_componentWillMount(): void {
+          if (!isHotReloading()) {
+            this.initIfNeeded()
+            this.validateIfNeeded()
+            this.warnIfNeeded()
+          }
+          invariant(
+            this.props.shouldValidate,
+            'shouldValidate() is deprecated and will be removed in v9.0.0. Use shouldWarn() or shouldError() instead.'
+          )
+        }
+
         UNSAFE_componentWillReceiveProps(nextProps: PropsWithContext): void {
-          const isValueReset = this.initIfNeeded(nextProps)
-          // initialize will dispatch a redux action and call componentWillReceiveProps again; hence we can skip reinitialize if needed.
-          if (isValueReset) return
+          this.initIfNeeded(nextProps)
           this.validateIfNeeded(nextProps)
           this.warnIfNeeded(nextProps)
           this.clearSubmitPromiseIfNeeded(nextProps)
@@ -511,9 +506,7 @@ export default function createReduxForm(structure: Structure<any, any>) {
 
         componentDidMount(): void {
           if (!isHotReloading()) {
-            // initialize in constructor function will dispatch a redux action and call componentWillReceiveProps which checks for validate;
-            // hence we can skip validate and warning if initialize has been triggered in constructor
-            if (this.initializedOnLoad) return
+            this.initIfNeeded(this.props)
             this.validateIfNeeded()
             this.warnIfNeeded()
           }
