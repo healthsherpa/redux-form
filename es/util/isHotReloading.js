@@ -1,7 +1,7 @@
 var isHotReloading = function isHotReloading() {
-  var castModule = module
+  var castModule = typeof module !== 'undefined' && module
   return !!(
-    typeof castModule !== 'undefined' &&
+    castModule &&
     castModule.hot &&
     typeof castModule.hot.status === 'function' &&
     castModule.hot.status() === 'apply'
