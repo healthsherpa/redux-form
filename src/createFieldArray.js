@@ -49,9 +49,9 @@ export default function createFieldArray(structure: Structure<any, any>) {
       )
     }
 
-    componentDidUpdate(prevProps: Props) {
-      const oldName = prefixName(prevProps, prevProps.name)
-      const newName = prefixName(this.props, this.props.name)
+    UNSAFE_componentWillReceiveProps(nextProps: Props) {
+      const oldName = prefixName(this.props, this.props.name)
+      const newName = prefixName(nextProps, nextProps.name)
 
       if (oldName !== newName) {
         // unregister old name

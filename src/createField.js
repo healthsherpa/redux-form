@@ -42,15 +42,15 @@ function createField(structure: Structure<any, any>) {
       return shallowCompare(this, nextProps, nextState)
     }
 
-    componentDidUpdate(prevProps: Props) {
-      const oldName = prefixName(prevProps, prevProps.name)
-      const newName = prefixName(this.props, this.props.name)
+    UNSAFE_componentWillReceiveProps(nextProps: Props) {
+      const oldName = prefixName(this.props, this.props.name)
+      const newName = prefixName(nextProps, nextProps.name)
 
       if (
         oldName !== newName ||
         // use deepEqual here because they could be a function or an array of functions
-        !plain.deepEqual(prevProps.validate, this.props.validate) ||
-        !plain.deepEqual(prevProps.warn, this.props.warn)
+        !plain.deepEqual(this.props.validate, nextProps.validate) ||
+        !plain.deepEqual(this.props.warn, nextProps.warn)
       ) {
         // unregister old name
         this.props._reduxForm.unregister(oldName)
@@ -58,8 +58,8 @@ function createField(structure: Structure<any, any>) {
         this.props._reduxForm.register(
           newName,
           'Field',
-          () => this.props.validate,
-          () => this.props.warn
+          () => nextProps.validate,
+          () => nextProps.warn
         )
       }
     }
